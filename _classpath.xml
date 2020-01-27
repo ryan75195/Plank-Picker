@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s17/s1742591/Downloads/OSBot 2.5.64.jar"/>
+	<classpathentry kind="output" path="out/production/PlankLooter"/>
+</classpath>
