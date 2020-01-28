@@ -1,3 +1,4 @@
+package src;
 
 public abstract class Node {
 	
@@ -9,7 +10,7 @@ public abstract class Node {
 
 	public abstract boolean validate();
 	
-	public abstract int execute();
+	public abstract int execute() throws InterruptedException;
 	
 	
 }

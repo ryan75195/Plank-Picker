@@ -1,9 +1,8 @@
+package src;
+
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.GroundItem;
-import org.osbot.rs07.api.model.Item;
-import org.osbot.rs07.api.ui.EquipmentSlot;
-import org.osbot.rs07.api.ui.MagicSpell;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Spells;
 import org.osbot.rs07.event.WebWalkEvent;
@@ -67,9 +66,7 @@ public class main extends Script {
     @Override
     public int onLoop() throws InterruptedException {
     
-    
-    
-	
+
 	if(getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
 		
 		for(Node n : trainingNodes) {
@@ -92,7 +89,7 @@ public class main extends Script {
 	return 0;
     }
 	
-	
+	//hello world
     
 
   
@@ -159,7 +156,7 @@ public class main extends Script {
              	
              });
              execute(e);
-             
+
              if (myPlayer().getHealthPercent() < 50 && (getInventory().isFull() && getInventory().contains("Salmon"))) {
                  currentAction = "Eating Food";
 
