@@ -2,8 +2,8 @@
   <artifact type="jar" name="Plank-Picker:jar">
     <output-path>$USER_HOME$/OSBot/Scripts</output-path>
     <root id="archive" name="Plank-Picker.jar">
-      <element id="extracted-dir" path="$USER_HOME$/Applications/OSBot/OSBot.jar" path-in-jar="/" />
-      <element id="library" level="project" name="OSBot" />
+      <element id="module-output" name="Plank-Picker" />
+      <element id="library" level="project" name="OSBot 2.5.67" />
     </root>
   </artifact>
 </component>
