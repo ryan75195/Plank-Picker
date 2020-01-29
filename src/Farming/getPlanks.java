@@ -6,6 +6,7 @@ import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.ui.Spells;
+import org.osbot.rs07.event.WalkingEvent;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.Condition;
@@ -22,7 +23,7 @@ public class getPlanks extends Node {
 
     @Override
     public boolean validate() {
-        return new Position(3166, 3674, 0).getArea(20).contains(m.myPosition()) && m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air");
+        return new Position(3166, 3674, 0).getArea(25).contains(m.myPosition()) && m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air");
     }
 
     @Override
@@ -32,26 +33,33 @@ public class getPlanks extends Node {
         Area graveyard = new Position(3166, 3674, 0).getArea(20);
 
         if (!graveyard.contains(m.myPosition())) {
-            walk(new Position(3148, 3671, 0));
+            walk(m.getGraveyardRoute().get(0));
 
             //getWalking().webWalk(graveyard.getCentralPosition());
         } else {
 
-            for (Position plankPosition : m.getGraveyardPlanks()) {
-                List<GroundItem> plank = m.getGroundItems().get(plankPosition.getX(), plankPosition.getY());
-                if (plank != null) {
+            for (Position nextStep : m.getGraveyardRoute()) {
+                List<GroundItem> items = m.getGroundItems().get(nextStep.getX(), nextStep.getY());
+
+                if(nextStep.distance(m.myPosition()) != 0){
+                    walk(nextStep);
+                }
 
 
+
+
+
+/*
                     do {
                         walk(plankPosition);
                         if (!new Position(3166, 3674, 0).getArea(20).contains(m.myPosition())) {
                             break;
                         }
-                    } while (plankPosition.distance(m.myPosition()) >= 1);
+                    } while (plankPosition.distance(m.myPosition()) >= 1);*/
 
-                    if (plank.get(0).isVisible()) {
+                    if (items.size() > 0) {
 
-                        for (GroundItem i : plank) {
+                        for (GroundItem i : items) {
                             if (i.getName().equals("Plank")) {
 
                                 do {
@@ -64,10 +72,10 @@ public class getPlanks extends Node {
                                     }
 
                                 }
-                                while (i.exists() && i != null && !m.getInventory().isFull());
+                                while (i.exists() && !m.getInventory().isFull());
 
 
-                            }
+
                         }
                     }
                 }
@@ -76,7 +84,7 @@ public class getPlanks extends Node {
             //   m.getWalking().webWalk();
         }
 
-        sleep(500);
+       // sleep(500);
 
         return 0;
     }
@@ -86,33 +94,30 @@ public class getPlanks extends Node {
         m.setCurrentAction("Walking to Plank");
 
 
-        if (p.distance(m.myPosition()) >= 3) {
-            WebWalkEvent e = new WebWalkEvent(p);
+
+            WalkingEvent e = new WalkingEvent(p);
             e.setBreakCondition(new Condition() {
 
                 @Override
                 public boolean evaluate() {
-                    return m.getSettings().isRunning() || (m.getInventory().isFull() && (!m.getInventory().contains(i -> i.getName().contains("Vial") || i.getName().contains("Salmon")))) || m.getInventory().isFull() || m.myPlayer().getHealthPercent() < 50;
+                    return /*m.getSettings().isRunning() ||*/ (m.getInventory().isFull() && (!m.getInventory().contains(i -> i.getName().contains("Vial") || i.getName().contains("Salmon")))) || m.getInventory().isFull() || m.myPlayer().getHealthPercent() < 50;
                 }
 
             });
             m.execute(e);
-        }
 
-        if (p.distance(m.myPosition()) < 3) {
-            m.getWalking().walk(p);
-        }
 
-        if (m.myPlayer().getHealthPercent() < 50 || (m.getInventory().isFull() && m.getInventory().contains("Salmon"))) {
+
+        if (m.myPlayer().getHealthPercent() < 50 ) {
             m.setCurrentAction("Eating Food");
             m.getInventory().interact("Eat", "Salmon");
-            MethodProvider.sleep(3000);
+            m.sleep(1000);
 
             if (m.myPlayer().getHealthPercent() < 50 && !m.getInventory().contains("Salmon")) {
                 if (m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT)) {
                     m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
                     m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
-                    MethodProvider.sleep(500);
+                    m.sleep(500);
                     m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
                 }
             }
@@ -126,7 +131,7 @@ public class getPlanks extends Node {
             } else if (m.getInventory().contains("Salmon")) {
                 m.setCurrentAction("Eating Food");
                 m.getInventory().interact("Eat", "Salmon");
-                MethodProvider.sleep(3000);
+                m.sleep(1000);
             }
 
         }
@@ -136,17 +141,17 @@ public class getPlanks extends Node {
             if (m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT)) {
                 m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
                 m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
-                MethodProvider.sleep(500);
+                m.sleep(500);
                 m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
             } else {
                 m.setCurrentAction("Error cant teleport");
             }
         }
 
-        if (m.getSettings().isRunning()) {
-            m.setCurrentAction("No running in the graveyard!");
-            m.getSettings().setRunning(false);
-            MethodProvider.sleep(500);
-        }
+//        if (m.getSettings().isRunning()) {
+//            m.setCurrentAction("No running in the graveyard!");
+//            m.getSettings().setRunning(false);
+//            MethodProvider.sleep(500);
+//        }
     }
 }

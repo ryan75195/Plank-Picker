@@ -15,7 +15,7 @@ public class Bank extends Node {
 
     @Override
     public boolean validate() {
-        return (m.getInventory().contains("Plank") && !new Position(3166, 3674, 0).getArea(20).contains(m.myPosition())) || !(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air"));
+        return (m.getInventory().contains("Plank") && m.getObjects().closest("Fountain") != null) || !(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air"));
     }
 
     @Override
@@ -33,10 +33,11 @@ public class Bank extends Node {
             MethodProvider.sleep(50);
             m.getBank().withdraw("Fire rune", 1);
             MethodProvider.sleep(50);
-            m.getBank().withdraw("Salmon", 8);
-            MethodProvider.sleep(50);
             m.getBank().withdraw("Energy potion(4)", 3);
             MethodProvider.sleep(50);
+            m.getBank().withdraw("Salmon", 4);
+            MethodProvider.sleep(50);
+
             m.getBank().close();
         } else {
             m.setCurrentAction("Banking Error");

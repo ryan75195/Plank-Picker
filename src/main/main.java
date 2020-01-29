@@ -23,6 +23,7 @@ public class main extends Script {
 
     boolean hasTeleported;
     ArrayList<Position> graveyardPlanks = new ArrayList<>();
+    ArrayList<Position> graveyardRoute = new ArrayList<>();
 
     public long startTime;
     long timeRan;
@@ -46,9 +47,26 @@ public class main extends Script {
         graveyardPlanks.add(new Position(3148, 3671, 0));
         graveyardPlanks.add(new Position(3154, 3670, 0));
         graveyardPlanks.add(new Position(3154, 3659, 0));
-        // graveyardPlanks.add(graveyard.getCentralPosition());
+
         graveyardPlanks.add(new Position(3171, 3680, 0));
         graveyardPlanks.add(new Position(3182, 3669, 0));
+
+        graveyardRoute.add(new Position(3148, 3671, 0));
+        graveyardRoute.add(new Position(3154, 3670, 0));
+        graveyardRoute.add(new Position(3154, 3659, 0));
+        //centre
+        graveyardRoute.add(new Position(3166, 3670, 0));
+        //plank 4, 5
+        graveyardRoute.add(new Position(3171, 3680, 0));
+        graveyardRoute.add(new Position(3182, 3669, 0));
+        //safespot
+        graveyardRoute.add(new Position(3176,3654,0));
+        graveyardRoute.add(new Position(3155,3654,0));
+        graveyardRoute.add(new Position(3144,3664,0));
+
+
+
+
 
         startTime = System.currentTimeMillis();
 
@@ -150,14 +168,10 @@ public class main extends Script {
         return graveyardPlanks;
     }
 
-//    public void walk(Position p, String Step) throws InterruptedException {
-//
-//    	if(Step == "Graveyard") {
-//
-//    	}else if(Step == "Bank") {
-//
-//
-//    }
+    public ArrayList<Position> getGraveyardRoute() {
+        return graveyardRoute;
+    }
+
 
 
     public ArrayList<String> getItemsToBuy() {
