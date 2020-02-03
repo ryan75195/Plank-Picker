@@ -3,6 +3,7 @@ package Training;
 import main.Node;
 import main.main;
 import org.osbot.rs07.api.map.Position;
+import org.osbot.rs07.script.MethodProvider;
 
 public class buyTrainingSupplies extends Node {
 
@@ -21,17 +22,15 @@ public class buyTrainingSupplies extends Node {
     @Override
     public int execute() throws InterruptedException {
 
-        m.log("buytraining");
+        m.log("buy training");
 
         if(grandExchange.distance(m.myPosition()) > 20){
             m.setCurrentAction("walking to ge");
-
             m.getWalking().webWalk(grandExchange);
         }else {
 
             if (!m.getInventory().contains("Coins")) {
                 m.setCurrentAction("getting cash");
-
                 m.getBank().open();
                 m.getBank().withdrawAll("Coins");
                 m.getBank().close();
@@ -44,22 +43,22 @@ public class buyTrainingSupplies extends Node {
 
             if (!m.getGrandExchange().isOpen()) {
                 m.getNpcs().closest("Grand Exchange Clerk").interact("Exchange");
+                MethodProvider.sleep(1500);
             }
 
-            if (m.getGrandExchange().isOpen() && !m.getInventory().contains(i -> i.getName().equals("Mind rune") || i.getName().equals("Staff of air"))) {
+            if (m.getGrandExchange().isOpen() && !m.getInventory().contains("Mind rune") || !m.getInventory().contains("Staff of air") && !m.getEquipment().contains("Staff of air")) {
 
                 if (!m.getInventory().contains("Mind rune")) {
                     m.setCurrentAction("buying runes");
-
                     m.getGrandExchange().buyItem(558, "Mind rune", 6, 1180);
-                    m.sleep(3000);
+                    MethodProvider.sleep(3000);
                 }
 
-                if (!m.getInventory().contains("Staff of air")) {
+                if (!m.getInventory().contains("Staff of air") && m.getEquipment().contains("Staff of air")) {
                     m.setCurrentAction("buying staff");
 
                     m.getGrandExchange().buyItem(1381, "Staff of air", 2000, 1);
-                    m.sleep(3000);
+                    MethodProvider.sleep(3000);
                 }
 
                 m.getGrandExchange().collect();
