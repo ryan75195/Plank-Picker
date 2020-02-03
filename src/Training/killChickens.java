@@ -25,22 +25,24 @@ public class killChickens extends Node {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int execute() throws InterruptedException {
-		
-		if(chickenPen.contains(m.myPosition())) {
+
+        m.log("killchickens");
+
+        if(chickenPen.contains(m.myPosition())) {
 
 
                 m.setCurrentAction("Selecting spell");
                 m.getTabs().open(Tab.ATTACK);
                 m.getWidgets().get(593, 22).interact();
-            MethodProvider.sleep(500);
+                MethodProvider.sleep(500);
                 m.getWidgets().get(201, 1, 1).interact();
 
 
 
 
             do {
-
                 NPC chicken = m.getNpcs().closest(i -> i.getName().equals("Chicken") && !i.isUnderAttack());
+
                 if (chicken != null && !m.myPlayer().isUnderAttack()) {
 
 
@@ -48,9 +50,8 @@ public class killChickens extends Node {
                         m.setCurrentAction("Killing Chickens!");
                         chicken.interact("Attack");
                         MethodProvider.sleep(5000);
-                    } while (chicken != null);
+                    } while (chicken.hasAction("Attack") && chicken.getHealthPercent() > 0);
                 }
-
                 //m.sleep(500);
 
 

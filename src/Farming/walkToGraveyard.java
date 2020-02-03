@@ -14,8 +14,8 @@ public class walkToGraveyard extends Node {
 
     @Override
     public boolean validate() {
-        return m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air")
-                && !new Position(3166, 3674, 0).getArea(20).contains(m.myPosition());
+        return !m.isTimeToBuy() && !m.isTimeToMule() && !m.isTimeToMule() && m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air")
+                && !m.inGraveyard();
 
     }
 

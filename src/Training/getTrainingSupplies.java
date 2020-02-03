@@ -18,6 +18,7 @@ public class getTrainingSupplies extends Node {
 	@Override
 	public int execute() throws InterruptedException {
 
+
 	    if(m.getInventory().contains("Staff of air")){
 	        m.getInventory().interact("Wield", "Staff of air");
         }
@@ -44,6 +45,7 @@ public class getTrainingSupplies extends Node {
             }else if(m.getBank().contains("Staff of air")){
                 m.getBank().withdraw("Staff of air", 1);
             }
+
 
         }
 		return 0;

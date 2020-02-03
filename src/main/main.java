@@ -1,10 +1,7 @@
 package main;
 
-import Farming.Bank;
-import Farming.getPlanks;
-import Farming.walkToGraveyard;
+import Farming.*;
 import Training.buyTrainingSupplies;
-import Training.getTrainingSupplies;
 import Training.killChickens;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
@@ -42,6 +39,9 @@ public class main extends Script {
 
     ArrayList<String> itemsToBuy = new ArrayList<>();
 
+    boolean timeToMule = false;
+    boolean timeToBuy = false;
+
     @Override
     public void onStart() {
         graveyardPlanks.add(new Position(3148, 3671, 0));
@@ -71,16 +71,22 @@ public class main extends Script {
         startTime = System.currentTimeMillis();
 
         trainingNodes = new ArrayList<Node>();
+        trainingNodes.add(new mule(this));
         trainingNodes.add(new buyTrainingSupplies(this));
-        trainingNodes.add(new getTrainingSupplies(this));
+        //trainingNodes.add(new getTrainingSupplies(this));
         trainingNodes.add(new killChickens(this));
+
+
 
 
         farmingNodes = new ArrayList<>();
         //farmingNodes.add(new buyRunSupplies(this));
+        farmingNodes.add(new mule(this));
+        farmingNodes.add(new buyRunSupplies(this));
         farmingNodes.add(new Bank(this));
         farmingNodes.add(new walkToGraveyard((this)));
         farmingNodes.add(new getPlanks(this));
+        farmingNodes.add(new sellPlanks(this));
 
 
 
@@ -107,11 +113,13 @@ public class main extends Script {
   		for(Node n : farmingNodes) {
 			if(n.validate()) {
 				n.execute();
-			}
+			}else{
+			    log("node not valid");
+            }
 		}
 		
 	}
-	return 0;
+	return 100;
     }
 	
 	//hello world
@@ -147,6 +155,20 @@ public class main extends Script {
     	
     	currentAction = s;
     }
+
+    public boolean inGraveyard(){
+        return new Position(3166, 3674, 0).getArea(25).contains(myPosition());
+    }
+
+
+    public void setTimeToMule(boolean t){
+
+        timeToMule = t;
+    }
+    public boolean isTimeToMule(){
+        return timeToMule;
+    }
+
 
 
 //
@@ -208,5 +230,23 @@ public class main extends Script {
     public void setTotalPlanks(int i) {
 
         totalPlanks = i;
+    }
+
+    public void setTimeToSell(boolean t){
+
+        timeToMule = t;
+    }
+    public boolean isTimeToSell(){
+        return timeToMule;
+    }
+
+    public boolean isTimeToBuy() {
+
+        return timeToBuy;
+    }
+
+    public void setTimeToBuy(boolean val){
+
+        timeToBuy = val;
     }
 }

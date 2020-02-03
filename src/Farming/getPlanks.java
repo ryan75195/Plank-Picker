@@ -20,19 +20,19 @@ public class getPlanks extends Node {
     public getPlanks(main m) {
         super(m);
     }
+    boolean tele = false;
 
     @Override
     public boolean validate() {
-        return new Position(3166, 3674, 0).getArea(25).contains(m.myPosition()) && m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air");
+        return !m.isTimeToBuy() && !m.isTimeToMule() && !m.isTimeToMule() && m.inGraveyard() && m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air");
     }
 
     @Override
     public int execute() throws InterruptedException {
         m.log("getPlanks Node");
 
-        Area graveyard = new Position(3166, 3674, 0).getArea(20);
 
-        if (!graveyard.contains(m.myPosition())) {
+        if (!m.inGraveyard()) {
             walk(m.getGraveyardRoute().get(0));
 
             //getWalking().webWalk(graveyard.getCentralPosition());
@@ -43,6 +43,48 @@ public class getPlanks extends Node {
 
                 if(nextStep.distance(m.myPosition()) != 0){
                     walk(nextStep);
+
+                    if (m.myPlayer().getHealthPercent() < 50 ) {
+                        m.setCurrentAction("Eating Food");
+                        m.getInventory().interact("Eat", "Salmon");
+                        m.sleep(500);
+
+                        if (m.myPlayer().getHealthPercent() < 50 && !m.getInventory().contains("Salmon")) {
+                            if (m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT)) {
+                                m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
+                                m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
+                                m.sleep(500);
+                                m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
+                            }
+                        }
+                    }
+
+                    if (m.getInventory().isFull() && (m.getInventory().contains("Salmon") || m.getInventory().contains("Vial"))) {
+
+                        if (m.getInventory().contains("Vial")) {
+                            m.setCurrentAction("Dropping vials");
+                            m.getInventory().dropAll("Vial");
+                        } else if (m.getInventory().contains("Salmon")) {
+                            m.setCurrentAction("Eating Food");
+                            m.getInventory().interact("Eat", "Salmon");
+                            m.sleep(500);
+                        }
+
+                    }
+
+                    if (m.getInventory().isFull() && !m.getInventory().contains("Salmon")) {
+                        m.setCurrentAction("casting Teleport");
+                        if (m.getMagic().canCast(Spells.NormalSpells.VARROCK_TELEPORT)) {
+                            m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
+                            m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
+                            tele = true;
+                            m.sleep(500);
+                            m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
+                        } else {
+                            m.setCurrentAction("Error cant teleport");
+                        }
+                    }
+
                 }
 
 
@@ -108,45 +150,7 @@ public class getPlanks extends Node {
 
 
 
-        if (m.myPlayer().getHealthPercent() < 50 ) {
-            m.setCurrentAction("Eating Food");
-            m.getInventory().interact("Eat", "Salmon");
-            m.sleep(1000);
 
-            if (m.myPlayer().getHealthPercent() < 50 && !m.getInventory().contains("Salmon")) {
-                if (m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT)) {
-                    m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
-                    m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
-                    m.sleep(500);
-                    m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
-                }
-            }
-        }
-
-        if (m.getInventory().isFull() && (m.getInventory().contains("Salmon") || m.getInventory().contains("Vial"))) {
-
-            if (m.getInventory().contains("Vial")) {
-                m.setCurrentAction("Dropping vials");
-                m.getInventory().dropAll("Vial");
-            } else if (m.getInventory().contains("Salmon")) {
-                m.setCurrentAction("Eating Food");
-                m.getInventory().interact("Eat", "Salmon");
-                m.sleep(1000);
-            }
-
-        }
-
-        if (m.getInventory().isFull() && !m.getInventory().contains("Salmon")) {
-            m.setCurrentAction("casting Teleport");
-            if (m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT)) {
-                m.getWalking().walk(new Position(m.myPosition().getX(), m.myPosition().getY() - 5, 0));
-                m.getMagic().castSpell(Spells.NormalSpells.VARROCK_TELEPORT);
-                m.sleep(500);
-                m.setSupplyCost(m.getCurrentSupplyCost() + 1363);
-            } else {
-                m.setCurrentAction("Error cant teleport");
-            }
-        }
 
 //        if (m.getSettings().isRunning()) {
 //            m.setCurrentAction("No running in the graveyard!");
