@@ -38,6 +38,12 @@ public class buyTrainingSupplies extends Node {
 
             if (m.getInventory().contains("Staff of air")) {
                 m.setCurrentAction("wielding staff");
+
+                if (m.getGrandExchange().isOpen()) {
+                    m.getGrandExchange().close();
+                    MethodProvider.sleep(500);
+                }
+
                 m.getInventory().interact("Wield", "Staff of air");
             }
 
@@ -46,22 +52,32 @@ public class buyTrainingSupplies extends Node {
                 MethodProvider.sleep(1500);
             }
 
-            if (m.getGrandExchange().isOpen() && !m.getInventory().contains("Mind rune") || !m.getInventory().contains("Staff of air") && !m.getEquipment().contains("Staff of air")) {
+            if (m.getGrandExchange().isOpen() && !m.getInventory().contains("Mind rune") || !m.getEquipment().contains("Staff of air")) {
 
-                if (!m.getInventory().contains("Mind rune")) {
-                    m.setCurrentAction("buying runes");
-                    m.getGrandExchange().buyItem(558, "Mind rune", 6, 1180);
+
+                if (m.getInventory().contains("Small fishing net")) {
+                    m.setCurrentAction("Selling Nets");
+                    m.getGrandExchange().sellItem(304, 1, 28);
                     MethodProvider.sleep(3000);
+                    m.getGrandExchange().collect();
+
+                } else {
+
+                    if (!m.getInventory().contains("Mind rune")) {
+                        m.setCurrentAction("buying runes");
+                        m.getGrandExchange().buyItem(558, "Mind rune", 6, 1180);
+                        MethodProvider.sleep(3000);
+                        m.getGrandExchange().collect();
+                    }
+
+                    if (!m.getInventory().contains("Staff of air") && !m.getEquipment().contains("Staff of air")) {
+                        m.setCurrentAction("buying staff");
+                        m.getGrandExchange().buyItem(1381, "Staff of air", 2000, 1);
+                        MethodProvider.sleep(3000);
+                        m.getGrandExchange().collect();
+                    }
                 }
-
-                if (!m.getInventory().contains("Staff of air") && m.getEquipment().contains("Staff of air")) {
-                    m.setCurrentAction("buying staff");
-
-                    m.getGrandExchange().buyItem(1381, "Staff of air", 2000, 1);
-                    MethodProvider.sleep(3000);
-                }
-
-                m.getGrandExchange().collect();
+                // m.getGrandExchange().collect();
 
             }
 

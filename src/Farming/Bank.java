@@ -5,6 +5,8 @@ import main.main;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.script.MethodProvider;
 
+import java.io.FileNotFoundException;
+
 public class Bank extends Node {
 
     Position BankPostition = new Position(3185, 3437, 0);
@@ -15,12 +17,17 @@ public class Bank extends Node {
 
     @Override
     public boolean validate() {
-        return (!m.isTimeToSell()) && !m.isTimeToBuy() && (/*m.getInventory().contains("Plank") || */!(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air")));
+        return (!m.isTimeToMule() && !m.isTimeToSell()) && !m.isTimeToBuy() && (/*m.getInventory().contains("Plank") || */!(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getEquipment().isWieldingWeapon("Staff of air")));
     }
 
     @Override
-    public int execute() throws InterruptedException {
+    public int execute() throws InterruptedException, FileNotFoundException {
         m.log("Bank Node");
+
+        if (m.getAccount("25flyberet") != null) {
+            m.log(m.getAccount(m.myPlayer().getName()).toString());
+        }
+
         if (!BankPostition.getArea(10).contains(m.myPosition())) {
             m.setCurrentAction("Walking to bank.");
             m.getWalking().webWalk(BankPostition);
@@ -36,11 +43,11 @@ public class Bank extends Node {
                 m.setTimeToMule(true);
             }else if(m.getBank().getAmount("Plank") > 300){
                 m.getBank().withdrawAll("Coins");
-                m.sleep(200);
+                MethodProvider.sleep(200);
                 m.getBank().enableMode(org.osbot.rs07.api.Bank.BankMode.WITHDRAW_NOTE);
-                m.sleep(200);
+                MethodProvider.sleep(200);
                 m.getBank().withdrawAll("Plank");
-                m.sleep(200);
+                MethodProvider.sleep(200);
                 m.getBank().enableMode(org.osbot.rs07.api.Bank.BankMode.WITHDRAW_ITEM);
                 m.setTimeToSell(true);
             }else{

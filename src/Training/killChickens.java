@@ -9,6 +9,8 @@ import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.script.MethodProvider;
 
+import java.io.FileNotFoundException;
+
 public class killChickens extends Node {
 
 	public killChickens(main m) {
@@ -24,9 +26,10 @@ public class killChickens extends Node {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public int execute() throws InterruptedException {
+    public int execute() throws InterruptedException, FileNotFoundException {
 
         m.log("killchickens");
+
 
         if(chickenPen.contains(m.myPosition())) {
 

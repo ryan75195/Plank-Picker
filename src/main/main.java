@@ -2,6 +2,7 @@ package main;
 
 import Farming.*;
 import Training.buyTrainingSupplies;
+import Training.getNets;
 import Training.killChickens;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
@@ -9,6 +10,7 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
@@ -19,6 +21,7 @@ public class main extends Script {
 
 
     boolean hasTeleported;
+    boolean testing = true;
     ArrayList<Position> graveyardPlanks = new ArrayList<>();
     ArrayList<Position> graveyardRoute = new ArrayList<>();
 
@@ -33,7 +36,7 @@ public class main extends Script {
     Position lastPlank;
     Position nextPlank;
     int supplyCost = 0;
-    
+
     ArrayList<Node> trainingNodes;
     ArrayList<Node> farmingNodes;
 
@@ -41,7 +44,7 @@ public class main extends Script {
 
     boolean timeToMule = false;
     boolean timeToBuy = false;
-
+    boolean timeToSell = false;
     @Override
     public void onStart() {
         graveyardPlanks.add(new Position(3148, 3671, 0));
@@ -60,12 +63,9 @@ public class main extends Script {
         graveyardRoute.add(new Position(3171, 3680, 0));
         graveyardRoute.add(new Position(3182, 3669, 0));
         //safespot
-        graveyardRoute.add(new Position(3176,3654,0));
-        graveyardRoute.add(new Position(3155,3654,0));
-        graveyardRoute.add(new Position(3144,3664,0));
-
-
-
+        graveyardRoute.add(new Position(3176, 3654, 0));
+        graveyardRoute.add(new Position(3155, 3654, 0));
+        graveyardRoute.add(new Position(3144, 3664, 0));
 
 
         startTime = System.currentTimeMillis();
@@ -75,8 +75,7 @@ public class main extends Script {
         trainingNodes.add(new buyTrainingSupplies(this));
         //trainingNodes.add(new getTrainingSupplies(this));
         trainingNodes.add(new killChickens(this));
-
-
+        trainingNodes.add(new getNets(this));
 
 
         farmingNodes = new ArrayList<>();
@@ -89,49 +88,71 @@ public class main extends Script {
         farmingNodes.add(new sellPlanks(this));
 
 
-
-
     }
 
 
     @Override
     public int onLoop() throws InterruptedException {
-    
 
-	if(getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
-		
-		for(Node n : trainingNodes) {
-			if(n.validate()) {
-				n.execute();
-			}
-		}
-		
-		
-		
-	}else {
-		
-  		for(Node n : farmingNodes) {
-			if(n.validate()) {
-				n.execute();
-			}else{
-			    log("node not valid");
+
+        if (testing) {
+
+            Node net = new getNets(this);
+            try {
+
+                if (net.validate()) {
+                    net.execute();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                sleep(500);
             }
-		}
-		
-	}
-	return 100;
+
+
+        } else {
+
+
+            if (getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
+
+                for (Node n : trainingNodes) {
+                    if (n.validate()) {
+                        try {
+                            n.execute();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+
+            } else {
+
+                for (Node n : farmingNodes) {
+                    if (n.validate()) {
+                        try {
+                            n.execute();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        log("node not valid");
+                    }
+                }
+
+            }
+
+        }
+        return 100;
     }
-	
-	//hello world
-    
 
-  
+    //hello world
 
-	public void onPaint(Graphics2D g) {
+
+    public void onPaint(Graphics2D g) {
 
         timeRan = System.currentTimeMillis() - startTime;
         totalTripTime = System.currentTimeMillis() - startTripTime;
-        long timeMins = Math.round(timeRan/1000/60);
+        long timeMins = Math.round(timeRan / 1000 / 60);
 
         if (getSkills().getVirtualLevel(Skill.MAGIC) >= 25) {
             g.drawString("Time Ran: " + formatTime(timeRan), 15, 300);
@@ -143,6 +164,7 @@ public class main extends Script {
             g.drawString("Current Action: " + currentAction, 15, 280);
         }
     }
+
     public String formatTime(long ms) {
         long s = ms / 1000, m = s / 60, h = m / 60;
         s %= 60;
@@ -150,7 +172,29 @@ public class main extends Script {
         h %= 24;
         return (String.format("%02d:%02d:%02d", h, m, s));
     }
-    
+
+
+    public Account getAccount(String userName) throws FileNotFoundException {
+        Filehandling f = new Filehandling("/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv");
+        ArrayList<Account> accounts = Filehandling.readAccountsFromCSV("/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv");
+
+        Account a = null;
+        //log("checking accounts");
+        for (Account acc : accounts) {
+            log(acc.getUsername());
+            if (acc.getUsername().equals(userName)) {
+                //log(userName + "found");
+                a = acc;
+                break;
+            }
+        }
+
+        if (a == null) {
+            log("Account not found");
+        }
+        return a;
+    }
+
     public void setCurrentAction(String s) {
     	
     	currentAction = s;
@@ -232,12 +276,13 @@ public class main extends Script {
         totalPlanks = i;
     }
 
-    public void setTimeToSell(boolean t){
-
-        timeToMule = t;
-    }
     public boolean isTimeToSell(){
-        return timeToMule;
+        return timeToSell;
+    }
+
+    public void setTimeToSell(boolean t) {
+
+        timeToSell = t;
     }
 
     public boolean isTimeToBuy() {
