@@ -21,9 +21,11 @@ public class main extends Script {
 
 
     boolean hasTeleported;
-    boolean testing = true;
+    boolean testing = false;
     ArrayList<Position> graveyardPlanks = new ArrayList<>();
     ArrayList<Position> graveyardRoute = new ArrayList<>();
+
+    String UniDir = "/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv";
 
     public long startTime;
     long timeRan;
@@ -71,11 +73,11 @@ public class main extends Script {
         startTime = System.currentTimeMillis();
 
         trainingNodes = new ArrayList<Node>();
-        trainingNodes.add(new mule(this));
+   //     trainingNodes.add(new mule(this));
+        trainingNodes.add(new getNets(this));
         trainingNodes.add(new buyTrainingSupplies(this));
         //trainingNodes.add(new getTrainingSupplies(this));
         trainingNodes.add(new killChickens(this));
-        trainingNodes.add(new getNets(this));
 
 
         farmingNodes = new ArrayList<>();
@@ -175,7 +177,7 @@ public class main extends Script {
 
 
     public Account getAccount(String userName) throws FileNotFoundException {
-        Filehandling f = new Filehandling("/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv");
+        Filehandling f = new Filehandling(UniDir);
         ArrayList<Account> accounts = Filehandling.readAccountsFromCSV("/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv");
 
         Account a = null;
@@ -201,7 +203,12 @@ public class main extends Script {
     }
 
     public boolean inGraveyard(){
-        return new Position(3166, 3674, 0).getArea(25).contains(myPosition());
+        return new Position(3166, 3674, 0).getArea(30).contains(myPosition());
+    }
+
+    public boolean getPlanks;
+    public void setGetPlanks(boolean b){
+        getPlanks = b;
     }
 
 
@@ -294,4 +301,6 @@ public class main extends Script {
 
         timeToBuy = val;
     }
+
+
 }

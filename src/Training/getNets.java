@@ -10,82 +10,61 @@ import java.io.FileNotFoundException;
 
 public class getNets extends Node {
 
-    boolean getPlanks;
+    boolean getNets;
     Area Lumbridge;
     boolean pickup;
     Position tutor;
+    int runs = 0;
+    Position lumbridgeBank;
 
     public getNets(main m) {
         super(m);
-        getPlanks = true;
         //pickup = false;
         Lumbridge = new Position(3220, 3218, 0).getArea(20);
         tutor = new Position(3244, 3157, 0);
+        lumbridgeBank = new Position(3208, 3218, 2);
     }
 
     @Override
     public boolean validate() {
-        return Lumbridge.contains(m.myPosition()) && !m.getInventory().isFull() || getPlanks;
+        return (Lumbridge.contains(m.myPosition()) && runs < 5) || m.getPlanks;
     }
 
     @Override
     public int execute() throws InterruptedException, FileNotFoundException {
 
-        if (Lumbridge.contains(m.myPosition()) && !(m.getEquipment().contains("Staff of air") && m.getInventory().contains("Mind rune")) && !m.getInventory().isFull()) {
-            getPlanks = true;
+        if (!(m.getEquipment().contains("Staff of air") && m.getInventory().contains("Mind rune")) && !m.getInventory().isFull()) {
+            m.setGetPlanks(true);
         }
 
         if (tutor.distance(m.myPosition()) > 5) {
+            m.setCurrentAction("Walking to net spawn.");
             m.getWalking().webWalk(tutor);
-        } else {
+        }
 
-            if (m.getNpcs().closest("Fishing tutor") != null) {
-                m.log(pickup);
-
-                if (m.getGroundItems().get(m.myPosition().getX(), m.myPosition().getY()).size() > 27) {
-                    m.log("Time to pick up");
-                    pickup = true;
-                }
-
-                if (pickup) {
-
-                    do {
-                        m.log("Taking");
-                        m.getGroundItems().closest("Small fishing net").interact("Take");
-                        MethodProvider.sleep(500);
-                    } while (m.getGroundItems().get(m.myPosition().getX(), m.myPosition().getY()).size() != 0);
-                    if (m.getGroundItems().get(m.myPosition().getX(), m.myPosition().getY()).size() == 0) {
-                        m.log("no items left");
-
-                        //pickup = false;
-                    }
+        if (!m.getInventory().isFull() && m.getGroundItems().get(3245,3156) != null) {
+            m.setCurrentAction("Taking nets");
+            m.getObjects().get(3245,3156).get(0).interact("Take");
+            m.sleep(500);
+        }
 
 
-                } else {
+        if (m.getInventory().isFull() && runs <= 5) {
+            m.setCurrentAction("Walking to bank");
+            m.getWalking().webWalk(lumbridgeBank);
+            m.setCurrentAction("Depositing");
+            m.getBank().open();
+            m.getBank().depositAll();
+            runs++;
+            m.log(runs);
 
-                    if (!m.getDialogues().inDialogue()) {
-                        m.getNpcs().closest("Fishing tutor").interact("Talk-to");
-                        MethodProvider.sleep(500);
-                    } else {
-
-                        m.getDialogues().selectOption(1);
-                        MethodProvider.sleep(500);
-                        m.getDialogues().clickContinue();
-                        if (m.getInventory().contains(i -> i.getName().contains("net"))) {
-                            m.getInventory().drop("Small fishing net");
-                            MethodProvider.sleep(500);
-                        }
-
-
-                    }
-                }
-
-
+            if (runs > 5) {
+                m.log("runs complete");
+                m.setGetPlanks(false);
             }
 
 
         }
-
 
         return 0;
     }

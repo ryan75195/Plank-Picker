@@ -21,7 +21,7 @@ public class killChickens extends Node {
 
 	@Override
 	public boolean validate() {
-		return isValid();
+		return !m.getPlanks && isValid();
 	}
 
 	@SuppressWarnings("unchecked")

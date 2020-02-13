@@ -23,10 +23,10 @@ public class Bank extends Node {
     @Override
     public int execute() throws InterruptedException, FileNotFoundException {
         m.log("Bank Node");
-
+/*
         if (m.getAccount("25flyberet") != null) {
             m.log(m.getAccount(m.myPlayer().getName()).toString());
-        }
+        }*/
 
         if (!BankPostition.getArea(10).contains(m.myPosition())) {
             m.setCurrentAction("Walking to bank.");

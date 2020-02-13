@@ -47,10 +47,7 @@ public class buyRunSupplies extends Node {
         itemID.put("Energy potion(4)",3008);
 
 
-        itemQuantity.put("Fire rune", 100);
-        itemQuantity.put("Law rune", 100);
-        itemQuantity.put("Salmon", 400);
-        itemQuantity.put("Energy potion(4)", 300);
+
 
 
 
@@ -86,6 +83,23 @@ public class buyRunSupplies extends Node {
 
                     m.setCurrentAction("buying " + item);
 
+                    if(m.getInventory().getAmount("Coins") < 10000){
+                        itemQuantity.put("Fire rune", 2);
+                        itemQuantity.put("Law rune", 2);
+                        itemQuantity.put("Salmon", 8);
+                        itemQuantity.put("Energy potion(4)", 6);
+                    }else if(m.getInventory().getAmount("Coins") < 50000){
+                        itemQuantity.put("Fire rune", 30);
+                        itemQuantity.put("Law rune", 30);
+                        itemQuantity.put("Salmon", 200);
+                        itemQuantity.put("Energy potion(4)", 150);
+                    }else{
+                        itemQuantity.put("Fire rune", 100);
+                        itemQuantity.put("Law rune", 100);
+                        itemQuantity.put("Salmon", 400);
+                        itemQuantity.put("Energy potion(4)", 300);
+                    }
+
                     if (m.getInventory().getAmount(item) < itemQuantity.get(item)) {
                         m.getGrandExchange().buyItem(itemID.get(item), item, itemPrice.get(item), itemQuantity.get(item) - (int) m.getInventory().getAmount(item));
                         MethodProvider.sleep(3000);
@@ -104,7 +118,7 @@ public class buyRunSupplies extends Node {
 
         }
 
-        if(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getInventory().contains("Salmon") && m.getInventory().contains("Energy potion (4)")){
+        if(m.getInventory().contains("Fire rune") && m.getInventory().contains("Law rune") && m.getInventory().contains("Salmon") && m.getInventory().contains("Energy potion(4)")){
             m.setTimeToBuy(false);
         }
 
