@@ -1,71 +1,97 @@
 package Training;
 
 import main.Node;
+import main.grandExchangeHandler;
 import main.main;
-import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.MethodProvider;
-
-import java.io.FileNotFoundException;
 
 public class getNets extends Node {
 
-    boolean getNets;
-    Area Lumbridge;
-    boolean pickup;
-    Position tutor;
-    int runs = 0;
-    Position lumbridgeBank;
+    Position currentLocation;
+    Position netSpawn = new Position(3245, 3155, 0);
+    Position Bank = new Position(3209, 3218, 2);
 
     public getNets(main m) {
         super(m);
-        //pickup = false;
-        Lumbridge = new Position(3220, 3218, 0).getArea(20);
-        tutor = new Position(3244, 3157, 0);
-        lumbridgeBank = new Position(3208, 3218, 2);
+        currentLocation = m.myPosition();
+
     }
 
     @Override
     public boolean validate() {
-        return (Lumbridge.contains(m.myPosition()) && runs < 5) || m.getPlanks;
+        return true;
     }
 
     @Override
-    public int execute() throws InterruptedException, FileNotFoundException {
+    public int execute() throws InterruptedException {
 
-        if (!(m.getEquipment().contains("Staff of air") && m.getInventory().contains("Mind rune")) && !m.getInventory().isFull()) {
-            m.setGetPlanks(true);
+        for (int i = 0; i < 9; i++) {
+            m.log("Runs:" + i);
+            getNets();
+            bankNets();
         }
 
-        if (tutor.distance(m.myPosition()) > 5) {
-            m.setCurrentAction("Walking to net spawn.");
-            m.getWalking().webWalk(tutor);
-        }
+        sellNets();
+        m.setNextNode();
 
-        if (!m.getInventory().isFull() && m.getGroundItems().get(3245,3156) != null) {
-            m.setCurrentAction("Taking nets");
-            m.getObjects().get(3245,3156).get(0).interact("Take");
-            m.sleep(500);
-        }
-
-
-        if (m.getInventory().isFull() && runs <= 5) {
-            m.setCurrentAction("Walking to bank");
-            m.getWalking().webWalk(lumbridgeBank);
-            m.setCurrentAction("Depositing");
-            m.getBank().open();
-            m.getBank().depositAll();
-            runs++;
-            m.log(runs);
-
-            if (runs > 5) {
-                m.log("runs complete");
-                m.setGetPlanks(false);
-            }
-
-
-        }
 
         return 0;
     }
+
+
+    public void getNets() throws InterruptedException {
+
+        if (inLumbridge() && isFreshSpawn() && !m.getInventory().isFull()) {
+            m.setCurrentAction("Walking to nets");
+            m.getWalking().webWalk(netSpawn);
+            m.setCurrentAction("Picking up nets");
+            if (m.getGroundItems().get(3245, 3156) != null && !m.getInventory().isFull()) {
+//                for(int i = 0; i < m.getGroundItems().getAll().size(); i++){
+//                    m.log(m.getObjects().getAll().get(i).getName());
+//                }
+                do {
+                    m.getObjects().get(3245, 3156).get(0).interact("Take");
+                    MethodProvider.sleep(500);
+                } while (!m.getInventory().isFull());
+            }
+        } else if (m.getInventory().isFull()) {
+
+            m.log("Logged in with full inventory, time to bank");
+        } else {
+            m.setCurrentAction("Not in Lumbridge, error");
+            m.log(String.format("%s,%s,%s", inLumbridge(), isFreshSpawn(), !m.getInventory().isFull()));
+        }
+
+    }
+
+    public void bankNets() throws InterruptedException {
+        if (m.getInventory().isFull()) {
+            m.setCurrentAction("Banking nets");
+            m.getWalking().webWalk(Bank);
+            if (m.getBank().closest() != null) {
+                m.getBank().open();
+                if (m.getWidgets().get(664, 28) != null && m.getWidgets().get(664, 28).isVisible()) {
+                    m.getWidgets().get(664, 28).interact();
+                }
+                m.getBank().depositAll();
+                m.getBank().close();
+            }
+        }
+    }
+
+    public boolean inLumbridge() {
+        return m.myPosition().getX() < 3255 && m.myPosition().getY() < 3235;
+    }
+
+    public boolean isFreshSpawn() {
+        return m.getSkills().getExperience(Skill.MAGIC) == 9 && !m.getInventory().contains(i -> i.getName().contains("rune"));
+    }
+
+    public void sellNets() throws InterruptedException {
+        grandExchangeHandler g = new grandExchangeHandler(m);
+        g.sellItem("Small fishing net", 1, 9999);
+    }
+
 }

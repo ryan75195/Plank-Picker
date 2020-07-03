@@ -38,8 +38,8 @@ public class buyRunSupplies extends Node {
 
         itemPrice.put("Fire rune", 6);
         itemPrice.put("Law rune", 165);
-        itemPrice.put("Salmon", 50);
-        itemPrice.put("Energy potion(4)", 400);
+        itemPrice.put("Salmon", 150);
+        itemPrice.put("Energy potion(4)", 600);
 
         itemID.put("Fire rune",554);
         itemID.put("Law rune",563);

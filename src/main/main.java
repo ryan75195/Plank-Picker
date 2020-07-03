@@ -1,9 +1,8 @@
 package main;
 
 import Farming.*;
-import Training.buyTrainingSupplies;
+import Training.Train;
 import Training.getNets;
-import Training.killChickens;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.Script;
@@ -18,6 +17,8 @@ import java.util.ArrayList;
 
 
 public class main extends Script {
+
+    ArrayList<Boolean> currentNode = new ArrayList<>();
 
 
     boolean hasTeleported;
@@ -49,6 +50,8 @@ public class main extends Script {
     boolean timeToSell = false;
     @Override
     public void onStart() {
+
+
         graveyardPlanks.add(new Position(3148, 3671, 0));
         graveyardPlanks.add(new Position(3154, 3670, 0));
         graveyardPlanks.add(new Position(3154, 3659, 0));
@@ -75,9 +78,12 @@ public class main extends Script {
         trainingNodes = new ArrayList<Node>();
    //     trainingNodes.add(new mule(this));
         trainingNodes.add(new getNets(this));
-        trainingNodes.add(new buyTrainingSupplies(this));
-        //trainingNodes.add(new getTrainingSupplies(this));
-        trainingNodes.add(new killChickens(this));
+        trainingNodes.add(new Train(this));
+
+
+//        trainingNodes.add(new buyTrainingSupplies(this));
+//        //trainingNodes.add(new getTrainingSupplies(this));
+//        trainingNodes.add(new killChickens(this));
 
 
         farmingNodes = new ArrayList<>();
@@ -89,6 +95,11 @@ public class main extends Script {
         farmingNodes.add(new getPlanks(this));
         farmingNodes.add(new sellPlanks(this));
 
+        for (int i = 0; i < farmingNodes.size(); i++) {
+            currentNode.add(false);
+        }
+
+        currentNode.set(0, true);
 
     }
 
@@ -99,7 +110,7 @@ public class main extends Script {
 
         if (testing) {
 
-            Node net = new getNets(this);
+            Node net = new Train(this);
             try {
 
                 if (net.validate()) {
@@ -117,7 +128,7 @@ public class main extends Script {
             if (getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
 
                 for (Node n : trainingNodes) {
-                    if (n.validate()) {
+                    if (currentNode.get(trainingNodes.indexOf(n))) {
                         try {
                             n.execute();
                         } catch (FileNotFoundException e) {
@@ -302,5 +313,14 @@ public class main extends Script {
         timeToBuy = val;
     }
 
+    public void setNextNode() {
+        for (int i = 0; i < currentNode.size(); i++) {
+            if (currentNode.get(i)) {
+                currentNode.set(i, false);
+                currentNode.set(i + 1, true);
+                break;
+            }
+        }
+    }
 
 }
