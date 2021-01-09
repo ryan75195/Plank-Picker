@@ -1,6 +1,6 @@
 package main;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public abstract class Node {
 	
@@ -12,7 +12,7 @@ public abstract class Node {
 
 	public abstract boolean validate();
 
-    public abstract int execute() throws InterruptedException, FileNotFoundException;
+    public abstract int execute() throws InterruptedException, IOException;
 	
 	
 }
