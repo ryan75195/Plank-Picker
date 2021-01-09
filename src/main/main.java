@@ -1,17 +1,18 @@
 package main;
 
-import Farming.*;
-import Training.buyTrainingSupplies;
-import Training.getNets;
-import Training.killChickens;
+import Farming_new.Bank;
+import Farming_new.buyRunSupplies;
+import Farming_new.getPlanks;
+import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
-import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 @ScriptManifest(author = "Ryan", info = "Who doesn't love a cool beer?", name = "Plank Scrounger", version = 1, logo = "")
@@ -19,11 +20,13 @@ import java.util.ArrayList;
 
 public class main extends Script {
 
+    ArrayList<Boolean> currentNode = new ArrayList<>();
+
 
     boolean hasTeleported;
-    boolean testing = false;
-    ArrayList<Position> graveyardPlanks = new ArrayList<>();
-    ArrayList<Position> graveyardRoute = new ArrayList<>();
+    public Area paintArea = null;
+    boolean startCash = false;
+    LinkedList<Position> graveyardPlanks = new LinkedList<>();
 
     String UniDir = "/afs/inf.ed.ac.uk/user/s17/s1742591/OSBot/Data/accounts/accounts.csv";
 
@@ -47,8 +50,15 @@ public class main extends Script {
     boolean timeToMule = false;
     boolean timeToBuy = false;
     boolean timeToSell = false;
+    LinkedList<Position> graveyardRoute = new LinkedList<>();
+    long time = System.currentTimeMillis();
+    socketHandler s = null;
+    boolean timeToBank = false;
+
     @Override
     public void onStart() {
+
+
         graveyardPlanks.add(new Position(3148, 3671, 0));
         graveyardPlanks.add(new Position(3154, 3670, 0));
         graveyardPlanks.add(new Position(3154, 3659, 0));
@@ -60,7 +70,7 @@ public class main extends Script {
         graveyardRoute.add(new Position(3154, 3670, 0));
         graveyardRoute.add(new Position(3154, 3659, 0));
         //centre
-        graveyardRoute.add(new Position(3166, 3670, 0));
+        graveyardRoute.add(new Position(3166, 3668, 0));
         //plank 4, 5
         graveyardRoute.add(new Position(3171, 3680, 0));
         graveyardRoute.add(new Position(3182, 3669, 0));
@@ -74,96 +84,106 @@ public class main extends Script {
 
         trainingNodes = new ArrayList<Node>();
    //     trainingNodes.add(new mule(this));
-        trainingNodes.add(new getNets(this));
-        trainingNodes.add(new buyTrainingSupplies(this));
-        //trainingNodes.add(new getTrainingSupplies(this));
-        trainingNodes.add(new killChickens(this));
+//        trainingNodes.add(new getNets(this));
+//        trainingNodes.add(new Train(this));
 
 
-        farmingNodes = new ArrayList<>();
-        //farmingNodes.add(new buyRunSupplies(this));
-        farmingNodes.add(new mule(this));
-        farmingNodes.add(new buyRunSupplies(this));
+//        trainingNodes.add(new buyTrainingSupplies(this));
+//        //trainingNodes.add(new getTrainingSupplies(this));
+//        trainingNodes.add(new killChickens(this));
+
+
+//        farmingNodes = new ArrayList<>();
+//        //farmingNodes.add(new buyRunSupplies(this));
+//        farmingNodes.add(new mule(this));
+//        farmingNodes.add(new buyRunSupplies(this));
+//        farmingNodes.add(new Bank(this));
+//        farmingNodes.add(new walkToGraveyard((this)));
+//        farmingNodes.add(new getPlanks(this));
+//        farmingNodes.add(new sellPlanks(this));
+
+        farmingNodes = new ArrayList<Node>();
         farmingNodes.add(new Bank(this));
-        farmingNodes.add(new walkToGraveyard((this)));
+        farmingNodes.add(new buyRunSupplies(this));
+        farmingNodes.add(new mule(this));
         farmingNodes.add(new getPlanks(this));
-        farmingNodes.add(new sellPlanks(this));
+//        farmingNodes.add(new walkToBank(this));
 
+
+
+        for (int i = 0; i < farmingNodes.size(); i++) {
+            currentNode.add(false);
+        }
+
+        currentNode.set(0, true);
 
     }
 
+    //hello world
+
+    public void onPause() {
+
+    }
 
     @Override
     public int onLoop() throws InterruptedException {
 
+        boolean testing = true;
 
         if (testing) {
+            mule m = new mule(this);
 
-            Node net = new getNets(this);
             try {
-
-                if (net.validate()) {
-                    net.execute();
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                m.execute();
                 sleep(500);
+            } catch (IOException e) {
+                log(e);
             }
-
 
         } else {
 
 
-            if (getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
-
-                for (Node n : trainingNodes) {
-                    if (n.validate()) {
-                        try {
-                            n.execute();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-
-            } else {
+//            if (getSkills().getVirtualLevel(Skill.MAGIC) < 25) {
+//
+//                for (Node n : trainingNodes) {
+//                    if (currentNode.get(trainingNodes.indexOf(n))) {
+//                        try {
+//                            n.execute();
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//
+//
+//            } else {
 
                 for (Node n : farmingNodes) {
                     if (n.validate()) {
                         try {
                             n.execute();
-                        } catch (FileNotFoundException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    } else {
-                        log("node not valid");
                     }
                 }
 
             }
 
-        }
-        return 100;
+//        }
+        return 50;
     }
 
-    //hello world
+    public void inArea(Area area, Graphics2D g) {
 
+        Polygon poly = myPosition().getPolygon(bot);
 
-    public void onPaint(Graphics2D g) {
-
-        timeRan = System.currentTimeMillis() - startTime;
-        totalTripTime = System.currentTimeMillis() - startTripTime;
-        long timeMins = Math.round(timeRan / 1000 / 60);
-
-        if (getSkills().getVirtualLevel(Skill.MAGIC) >= 25) {
-            g.drawString("Time Ran: " + formatTime(timeRan), 15, 300);
-            g.drawString("Planks Scrounged: " + totalPlanks, 15, 320);
-            g.drawString("Total Profit: " + ((totalPlanks * 369) - supplyCost) + "gp   (" + (totalPlanks * 369) / timeMins * 60 + " GP/h)", 15, 340);
-            g.drawString("Current Action: " + currentAction, 15, 280);
+        if (area.contains(myPosition())) {
+            g.setColor(Color.GREEN);
+            g.fillPolygon(poly);
         } else {
-            g.drawString("Time Ran: " + formatTime(timeRan), 15, 300);
-            g.drawString("Current Action: " + currentAction, 15, 280);
+            g.setColor(Color.red);
+            g.fillPolygon(poly);
         }
     }
 
@@ -202,8 +222,27 @@ public class main extends Script {
     	currentAction = s;
     }
 
-    public boolean inGraveyard(){
-        return new Position(3166, 3674, 0).getArea(30).contains(myPosition());
+    public void onPaint(Graphics2D g) {
+
+
+        timeRan = System.currentTimeMillis() - startTime;
+        totalTripTime = System.currentTimeMillis() - startTripTime;
+        long timeMins = Math.round(timeRan / 1000 / 60);
+
+        g.drawString("Time Ran: " + formatTime(timeRan), 15, 300);
+        g.drawString("Planks Scrounged: " + totalPlanks, 15, 320);
+        if (timeMins < 1) {
+            g.drawString("Total Profit: " + ((totalPlanks * 330) - supplyCost) + "gp", 15, 340);
+
+        } else {
+            g.drawString("Total Profit: " + ((totalPlanks * 330) - supplyCost) + "gp   (" + (totalPlanks * 330) / timeMins * 60 + " GP/h)", 15, 340);
+        }
+        g.drawString("Current Action: " + currentAction, 15, 280);
+
+
+        if (paintArea != null) {
+            inArea(paintArea, g);
+        }
     }
 
     public boolean getPlanks;
@@ -237,12 +276,14 @@ public class main extends Script {
 //        return nextPlank;
 //    }
 
-    public ArrayList<Position> getGraveyardPlanks() {
-        return graveyardPlanks;
+    public boolean inGraveyard() {
+        Area graveyard = new Area(3143, 3650, 3187, 3693);
+
+        return graveyard.contains(myPosition());
     }
 
-    public ArrayList<Position> getGraveyardRoute() {
-        return graveyardRoute;
+    public LinkedList<Position> getGraveyardPlanks() {
+        return graveyardPlanks;
     }
 
 
@@ -283,14 +324,14 @@ public class main extends Script {
         totalPlanks = i;
     }
 
-    public boolean isTimeToSell(){
-        return timeToSell;
-    }
-
-    public void setTimeToSell(boolean t) {
-
-        timeToSell = t;
-    }
+//    public boolean isTimeToSell(){
+//        return timeToSell;
+//    }
+//
+//    public void setTimeToSell(boolean t) {
+//
+//        timeToSell = t;
+//    }
 
     public boolean isTimeToBuy() {
 
@@ -302,5 +343,33 @@ public class main extends Script {
         timeToBuy = val;
     }
 
+    public void setNextNode() {
+        for (int i = 0; i < currentNode.size(); i++) {
+            if (currentNode.get(i)) {
+                currentNode.set(i, false);
+                currentNode.set(i + 1, true);
+                break;
+            }
+        }
+    }
 
+    public LinkedList<Position> getGraveyardRoute() {
+        return graveyardRoute;
+    }
+
+    public boolean getStarterCash() {
+        return startCash;
+    }
+
+    public void setStarterCash(boolean set) {
+        startCash = set;
+    }
+
+    public boolean getTimeToBank() {
+        return timeToBank;
+    }
+
+    public void setTimeToBank(boolean in) {
+        timeToBank = in;
+    }
 }
